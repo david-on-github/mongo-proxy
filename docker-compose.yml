@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+  mongo:
+    image: mongo
+    container_name: mongo-db
+    command: --port 27018
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app_network
+
+  defra-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mongo-defra-proxy
+    environment:
+      MONGO_CONNECTION_STRING: mongodb://root:example@mongo:27018/
+    ports:
+      - 27017:27017
+    depends_on:
+      - mongo
+    networks:
+      - app_network
+
+volumes:
+  mongo_data:
+
+networks:
+  app_network:
+    driver: bridge
